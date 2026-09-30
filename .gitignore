@@ -1,0 +1,11 @@
+
+
+# Kaggle downloaded archive
+logistics-fleet-data.zip
+
+# Power BI temporary/large files
+*.pbix
+
+# Python cache
+__pycache__/
+.ipynb_checkpoints/
