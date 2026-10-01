@@ -1,174 +1,637 @@
+# 🚚 Fleet Delivery Performance Analytics
 
+> **End-to-end data analytics pipeline for fleet, delivery, cost, and revenue performance — from Python ETL and SQL Server to an interactive Power BI dashboard.**
 
+---
 
-# Fleet (Delivery Truck) -ETL/Dashboard
+## 🌐 Live Power BI Report
 
+**[View the published Fleet Delivery Performance Analytics report](https://app.powerbi.com/groups/0a334a76-91ec-49cf-93ab-6def0cdbad56/reports/3d944293-2a9d-4bfc-8e05-f22c46695212/d30f811b0be04689e99b?experience=power-bi&bookmarkGuid=078d2882923200d30372)**
 
-## Problem Statement
+> The report is published to Power BI Service. Interactive filters can be used to explore the three dashboard pages.
 
-The dashboard was created to understand the company's financial position, vehicle and driver performance, and customer demographic. The dashboard can help stakeholder understand it's financial trend, seasonality, cost and revenue generation from both vehicles and drivers, and market. 
+---
 
-With the quantifiable measures such as revenue, operating cost ratio, growth rate, average revenue based on various factors, and revenue earned from different geographic variable, the company can identify it's strength and weakness and take actionable measures to improve it's both profit and revenue. 
+## 📌 Project Overview
 
+This project analyzes fleet delivery operations using a complete analytics workflow:
 
-### Steps followed 
-- ETL process
-The process includes extracting data from Kaggle API, transforming in Python, and loading the data in SQL, and connecting it to Power BI for further transformation on the visualization needs. 
-![Image](https://github.com/user-attachments/assets/dc001e47-5005-4314-a439-f701f2d1b0e0)
-- Data Collection
-The data was collected using Kaggle API with python. The data contained three files, an excel workbook with 3 sheets as dimension table including customer, driver, and truck, an excel file containing cost fact table, and a csv containing freight information.  
+**Raw Kaggle Data → Python ETL → SQL Server → SQL Analysis → Power BI**
 
-- Data Cleaning in Python
+The project focuses on understanding:
 
-The data was cleaned in python using the pandas library. 
+- 🚚 Fleet and vehicle performance
+- 👨‍✈️ Driver efficiency and operating cost
+- 💰 Freight revenue and operating costs
+- ⛽ Fuel consumption and efficiency
+- 📦 Freight shipments and delivery activity
+- 🗺️ Geographic performance by state and city
 
-Fact Table Separation:
-The fact table was split into separate tables to improve data structure and facilitate analysis.
+The goal is to transform messy operational data into a structured analytical model and an interactive Power BI report that can be used to explore fleet and delivery performance.
 
-Null Value Handling:
-All tables were examined for null values, which were removed to ensure data integrity.
+---
 
-Column Standardization:
-Columns across all tables were standardized to ensure consistency and alignment with the schema.
+## 🏗️ Solution Architecture
 
-Cost Sheet Cleanup:
-The cost sheet contained two tables in a single sheet, separated by year. These tables were cleaned, with null values removed, and formatted to adhere to a standardized structure suitable for SQL import.
+```text
+Kaggle Dataset
+      │
+      ▼
+Python + Pandas
+      │
+      │  Extract, clean, validate,
+      │  standardize and export
+      ▼
+Clean CSV Files
+      │
+      ▼
+SQL Server
+      │
+      │  Relationships, JOINs,
+      │  GROUP BY, CTEs,
+      │  window functions and analysis
+      ▼
+Power BI
+      │
+      ├── Data Model
+      ├── DAX Measures
+      └── Interactive Dashboards
+```
 
-Freight Table Standardization:
-The freight table’s columns were standardized to match the conventions used in the other tables, ensuring consistency across the schema.
+---
 
-- Data injection into SQL
-Data Import:
-Data was imported into the SQL database using SQLAlchemy. The import process involved:
+## 📂 Project Structure
 
-Extracting cleaned and standardized data.
-Using SQLAlchemy's to_sql() method to load the data into the corresponding tables in the PostGresSQL database.
-Table Structure and Relationships: After importing the data, the database schema was further refined:
-![Image](https://github.com/user-attachments/assets/702a3f53-94c8-4176-9527-e44623271cba)
-Primary Keys:
-A primary key was created for each table to uniquely identify each record. This was achieved using SQLAlchemy's PrimaryKeyConstraint.
-Foreign Keys:
-Foreign keys were established between related tables to maintain data integrity and establish relationships. This was done using SQLAlchemy’s ForeignKey constraint to link the relevant columns across tables.
+```text
+Fleet-Delivery-Performance-Analytics/
+│
+├── data/
+│   ├── raw/
+│   │   ├── DimensionTables.xlsx
+│   │   ├── fCosts.xlsx
+│   │   └── fFreight.csv
+│   │
+│   └── clean/
+│       ├── customers.csv
+│       ├── drivers.csv
+│       ├── vehicles.csv
+│       ├── freight.csv
+│       └── costs.csv
+│
+├── images/
+│   ├── page1_executive_overview.png
+│   ├── page2_fleet_vehicle_performance.png
+│   └── page3_driver_delivery_performance.png
+│
+├── ETL Delivery Truck - Structured.ipynb
+├── README.md
+└── .gitignore
+```
 
-Wrote SQL queries to derive insights, understand the data and answer business questions. Applied aggregations, joins, CTE, and Windows Function to extract key metrics.
+> The Power BI `.pbix` file is excluded from GitHub through `.gitignore`. The report was developed in Power BI Desktop using the SQL Server model.
 
-- Data Load to Power BI
+---
 
-Established a connection between PostGresSQL and Power BI by importing and structuring the data for visualization.
-- Data Modeling
+# 🔄 Data Pipeline
 
-- Created relationships between tables.
-- Built a Calendar Table for time-based analysis (date filtering, YTD, MTD calculations).
-- A Region Table was created to facilitate geographic-based analysis by grouping data at a higher level of granularity. The Region Table was designed to summarize findings on a macro level, allowing for easier analysis and reporting across larger geographical groupings.
+## 1. 📥 Data Extraction
 
-- Dashboard & Metrics
+The source dataset was downloaded from Kaggle using the Kaggle API.
 
-Designed a Power BI dashboard with key insights and visuals separted into 3 dashboard.Created DAX measures for KPIs like average KPI's, growth rate, ratios, filters, map visualization, ranking, and matrix tables. 
-           
-- Financial Overview Dashboard. 
-![Image](https://github.com/user-attachments/assets/82febd73-f5cb-4b0d-8c78-576ed3b8a70a)
-The dasboard KPI section shows total revenue, profit, operating cost ratio and year growth rate (an arrow indicating green when positive and red when negative)
+### Source files
 
-A line graph was added to compare the trend of both cost and profit. 
+| File | Format | Purpose |
+|---|---|---|
+| `DimensionTables.xlsx` | Excel | Driver, vehicle, and customer dimension data |
+| `fCosts.xlsx` | Excel | Fleet operating cost records |
+| `fFreight.csv` | CSV | Freight and delivery transaction records |
 
-A table was created to show present month growth rate compared to last (also arrow indicating green when positive and red when negative)
+---
 
-- Vehicle and Driver Performance
-![Image](https://github.com/user-attachments/assets/d967b6ca-668f-4a82-97b7-e6a21afddf4c)
-The KPI section contains total distance traveled, number of orders, revenue per KG, Avg fuel consumer per KM, and Avg revenue earned per delivery. 
+## 2. 🧹 Data Cleaning & Transformation
 
-A table was created to show the distributed percentage of revenue, delivery, cost, and profit percentage among various categories of vehicle. 
+Python and Pandas were used to convert the raw files into analysis-ready datasets.
 
+### Key ETL steps
 
-- Customer Insight
+- Loaded Excel and CSV source files
+- Inspected table structures and column types
+- Validated primary identifiers
+- Separated and standardized dimension tables
+- Cleaned the multi-year cost workbook
+- Removed non-data/separator rows from the cost data
+- Converted dates to proper date format
+- Converted numeric fields to appropriate numeric types
+- Cleaned freight numeric values and decimal formatting
+- Standardized column names
+- Performed duplicate and data-quality checks
+- Exported five clean CSV datasets
 
-![Image](https://github.com/user-attachments/assets/88d251ac-2783-499e-9ec6-21ada5b8e1da)
+### Final clean datasets
 
-A state map was to show the reveue earned from each state.
+| Table | Rows |
+|---|---:|
+| `drivers` | 32 |
+| `vehicles` | 31 |
+| `customers` | 43,910 |
+| `costs` | 295 |
+| `freight` | 92,060 |
 
-A table was created to rank the state based on revenue earned ,and number of customers and Avg earned per Customer. 
+---
 
-A line graph was added to see the number of order trend based on date and a hollow pie chard was added to depict the number of orders from region. 
-        
-   ### DAX measures used:
+# 🗄️ SQL Server Database
 
-- Following DAX expression was to calculate the growth in profit every month compared to last month. A conditional icon was also added to visually depict the growth or decline in profit. 
+The cleaned CSV files were imported into a **Microsoft SQL Server** database named:
 
-        Growth_Rate_Profit = 
-        VAR TotalProfit = [Total_Profit]
-        VAR PreviousMonthRevenue = [PreviousMonthProfit]  
-        RETURN
-        IF(
-        NOT ISBLANK(PreviousMonthRevenue) && PreviousMonthRevenue <> 0, 
-        ((TotalProfit - PreviousMonthRevenue) / [PreviousMonthRevenue]),
-        BLANK()
-        )
+```text
+FleetDeliveryAnalytics
+```
 
-![Image](https://github.com/user-attachments/assets/feb5bb4b-2402-4266-858b-2d415f57593a)
+SQL Server was used as the relational storage and analysis layer between Python ETL and Power BI.
 
-- Certain DAX measures were created to understand the cost and revenue distribution and different type of vehicle categories. 
+## Database tables
 
-![Image](https://github.com/user-attachments/assets/d6be1428-d55e-40f9-ab75-842fc757c34a)
+```text
+drivers
+vehicles
+customers
+costs
+freight
+```
 
-        
+### Key relationships
 
- 
-Following Dax was used to find  average time it took to complete a delivery.
- 
-         Truvck_Delivery_% = 
-            VAR total_order = COUNTROWS('freight')
+```text
+drivers
+   │
+   └──────────< costs >──────────┐
+                                  │
+vehicles ────────────────────────┘
+   │
+   └──────────< freight >────────── customers
+```
 
-            RETURN 
-        DIVIDE(total_order, [No_of_Order], 0) 
+### Primary keys
 
-- A rank table was created to rank a state based on revenue.  
-![Image](https://github.com/user-attachments/assets/97108563-7f7e-4ef1-bd57-9bded240210b)
+- `drivers.driver_id`
+- `vehicles.truck_id`
+- `customers.customer_id`
 
-        StateRevenueRank = 
-        RANKX(
-            ALL('RegionTable'[State]),
-            CALCULATE(SUM('freight'[net_revenue])),
-            , 
-            DESC,  
-            Dense   
-        )
-The report was then published to Power BI Service.
+### Foreign keys
 
-# Insights
+- `costs.driver_id → drivers.driver_id`
+- `costs.truck_id → vehicles.truck_id`
+- `freight.truck_id → vehicles.truck_id`
+- `freight.customer_id → customers.customer_id`
 
-Following inferences can be drawn from the dashboard;
+---
 
-### [1] Highest Profit Growth
+# 🧮 SQL Analysis
 
-the highest profit growth is usually in February, and between end of quarter 3 and start of quarter 4 suggestign a seasonality. The company would benifit more looking for the cause of surge in profit. 
+SQL was used after loading the cleaned data into SQL Server to perform relational analysis and derive operational metrics.
 
-           
-### [2] Vehicle Performance
-   
-The company earns high revenue from Trailer type vehicles. Likewise, Box Fridge vehicles accounts for lowest revenue and it also has the highest mileage among all the vehicle types. Lastly, although tractor accounts for 9.29% profit, it earns $714 revenue per km. The company might consider replacing Box Friedge with more Tractor if there is a demand to be fulfilled. 
+### SQL concepts demonstrated
 
-  
-  ### [3] Revenue per Category  
-West Virginia followed by Oklahoma and South Carolina accounts for the top 3 revenue by state in that order. Likewise, the company has the highest revenue from West region and least from Northeast region. Although, WA ranks 8 in revenue earned from state, it has the highest avg revenue per customer with a total of 91 customer.           
+- `SELECT`
+- `WHERE`
+- `JOIN`
+- `LEFT JOIN`
+- `GROUP BY`
+- Aggregations
+- `CASE`
+- CTEs
+- `RANK()`
+- `ROW_NUMBER()`
+- Derived metrics
 
-### Some Business Question Solved through SQL Query
-Which driver has the highest fuel efficiency?
+### Examples of calculated metrics
 
-![Image](https://github.com/user-attachments/assets/3c16906a-0b4e-4655-8cad-fb5232d02dc3)
+**Total Operating Cost**
 
+```text
+Fuel Cost + Maintenance Cost + Fixed Cost
+```
 
-What truck has the highest maintenance cost per km?
+**KM per Liter**
 
-![Image](https://github.com/user-attachments/assets/968baf94-709b-4f2c-b7e5-1c83fc502ebc)
+```text
+Distance Traveled / Fuel Used
+```
 
+**Cost per KM**
 
-What is the correlation between vehicle age and maintenance cost?
-![Image](https://github.com/user-attachments/assets/32e9c5af-c4b1-47af-a151-2e85917f387a)
+```text
+Total Operating Cost / Distance Traveled
+```
 
+**Revenue per KG**
 
-Is there seasonality in order value?
-![Image](https://github.com/user-attachments/assets/e8156305-02af-4dc1-934a-0c725155454e)
-![Image](https://github.com/user-attachments/assets/39cc2f02-cbdf-4076-9a78-99d43e48759f)
+```text
+Freight Revenue / Freight Weight
+```
 
-What is the maintenance cost based on total km?
-![Image](https://github.com/user-attachments/assets/b649f675-ce11-45cc-ae7a-d62d20322e01)
+These calculations were used to analyze driver, vehicle, freight, and truck-type performance.
+
+---
+
+# 📊 Power BI Dashboard
+
+The final Power BI report contains **three analytical pages**, with shared filters for Year, Truck Type, Vehicle, Driver, State, and City.
+
+### 🔗 Published Report
+
+**[Open the interactive Power BI report](https://app.powerbi.com/groups/0a334a76-91ec-49cf-93ab-6def0cdbad56/reports/3d944293-2a9d-4bfc-8e05-f22c46695212/d30f811b0be04689e99b?experience=power-bi&bookmarkGuid=078d2882923200d30372)**
+
+---
+
+## 1. Executive Overview
+
+Provides a high-level view of fleet cost, freight revenue, distance, fuel efficiency, shipment activity, and vehicle count.
+
+### KPI metrics
+
+- Total Operating Cost
+- Freight Revenue
+- Total Distance
+- Average KM per Liter
+- Freight Shipments
+- Total Vehicles
+
+### Main visuals
+
+- Freight Revenue vs Operating Cost Trend
+- Operating Cost Breakdown
+- Freight Revenue by Truck Type
+- Monthly Freight Revenue Trend
+- Freight Shipments by State
+- Top 5 Delivery Cities by Revenue
+
+### Dashboard Preview
+
+![Executive Overview](./images/page1_executive_overview.png)
+
+---
+
+## 2. Fleet & Vehicle Performance
+
+Focuses on fleet composition, operating efficiency, cost, fuel usage, and distance.
+
+### KPI metrics
+
+- Total Vehicles
+- Total Distance
+- Total Operating Cost
+- Cost per KM
+- Average KM per Liter
+- Total Fuel Used
+
+### Main visuals
+
+- Cost Breakdown by Truck Type
+- Cost per KM by Truck Type
+- Fuel Consumption by Truck Type
+- Fuel Efficiency by Truck Type
+- Distance Traveled by Truck Type
+- Fleet Composition by Truck Type
+
+### Dashboard Preview
+
+![Fleet & Vehicle Performance](./images/page2_fleet_vehicle_performance.png)
+
+---
+
+## 3. Driver & Delivery Performance
+
+Focuses on driver efficiency, operating costs, freight activity, and geographic delivery performance.
+
+### KPI metrics
+
+- Total Drivers
+- Freight Shipments
+- Total Freight Revenue
+- Total Customers
+- Total Freight Weight
+- Average Revenue per Shipment
+
+### Main visuals
+
+- 10 Most Cost-Efficient Drivers
+- Top 10 Drivers by Operating Cost
+- Top 10 Cities by Revenue
+- Freight Shipments by State
+- Top 10 Cities by Average Revenue per Shipment
+- Monthly Freight Shipments Trend
+
+### Dashboard Preview
+
+![Driver & Delivery Performance](./images/page3_driver_delivery_performance.png)
+
+---
+
+# 📅 Date Modeling
+
+A dedicated `DateTable` was created in Power BI to provide a common date dimension for the `freight` and `costs` tables.
+
+The table contains:
+
+- Date
+- Year
+- Month
+- Month Number
+
+The month name is sorted using the month number to maintain chronological order.
+
+This allows the report to use consistent time filtering and monthly trends across different fact tables.
+
+---
+
+# 📐 Power BI Data Model
+
+The Power BI model uses a relationship-based structure rather than combining all data into one large table.
+
+```text
+                 DateTable
+                 /       \
+                /         \
+               ▼           ▼
+           freight       costs
+             ▲  ▲         ▲  ▲
+             │  │         │  │
+             │  └─────────┘  │
+             │               │
+        customers          drivers
+             │
+             │
+          vehicles
+             │
+             └──────── freight
+```
+
+Key relationships include:
+
+```text
+DateTable[Date] → freight[date]
+DateTable[Date] → costs[date]
+
+customers[customer_id] → freight[customer_id]
+vehicles[truck_id] → freight[truck_id]
+vehicles[truck_id] → costs[truck_id]
+drivers[driver_id] → costs[driver_id]
+```
+
+---
+
+# 🧮 Key DAX Measures
+
+The Power BI report uses measures for reusable business calculations.
+
+### Total Operating Cost
+
+```DAX
+Total Operating Cost =
+SUM(costs[fuel])
+    + SUM(costs[maintenance])
+    + SUM(costs[fixed_costs])
+```
+
+### Total Distance
+
+```DAX
+Total Distance =
+SUM(costs[km_traveled])
+```
+
+### Average KM per Liter
+
+```DAX
+Average KM per Liter =
+DIVIDE(
+    [Total Distance],
+    [Total Fuel Used]
+)
+```
+
+### Cost per KM
+
+```DAX
+Cost per KM =
+DIVIDE(
+    [Total Operating Cost],
+    [Total Distance]
+)
+```
+
+### Total Freight Revenue
+
+```DAX
+Total Freight Revenue =
+SUM(freight[net_revenue])
+```
+
+### Freight Shipments
+
+```DAX
+Freight Shipments =
+DISTINCTCOUNT(freight[freight_id])
+```
+
+### Total Vehicles
+
+```DAX
+Total Vehicles =
+DISTINCTCOUNT(vehicles[truck_id])
+```
+
+Additional measures are used for fuel, maintenance, fixed costs, freight weight, goods value, drivers, customers, and revenue-per-shipment analysis.
+
+---
+
+# 🔍 Business Questions
+
+The project is designed to answer questions such as:
+
+### Fleet & Cost
+- Which truck types generate the highest operating cost?
+- Which truck types have the lowest cost per KM?
+- How is operating cost divided between fuel, maintenance, and fixed costs?
+- How much distance is being covered by each truck type?
+
+### Fuel & Efficiency
+- Which truck types have higher fuel consumption?
+- How does fuel efficiency vary by truck type?
+- What is the overall KM-per-liter performance?
+
+### Driver Performance
+- Which drivers have the lowest cost per KM?
+- Which drivers have the highest operating cost?
+- How does driver performance vary across the fleet?
+
+### Delivery & Revenue
+- Which truck types generate the most freight revenue?
+- Which states have the highest shipment volumes?
+- Which cities generate the highest freight revenue?
+- Which cities have the highest average revenue per shipment?
+- How does freight revenue change month by month?
+
+---
+
+# 💡 Key Analytical Findings
+
+The dashboard provides a way to identify:
+
+- Differences in operating cost across truck types
+- Differences in fuel efficiency across the fleet
+- Drivers with relatively lower or higher cost per KM
+- Geographic differences in shipment activity
+- High-revenue delivery cities
+- Monthly changes in freight revenue and shipment volume
+- Fleet composition across truck types
+
+> **Note:** Specific rankings and values shown in the dashboard are dynamic and change when Year, Truck Type, Vehicle, Driver, State, or City filters are applied.
+
+---
+
+# 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Data Source | Kaggle |
+| Data Extraction | Python · Kaggle API |
+| ETL | Python · Pandas · Jupyter Notebook |
+| Database | Microsoft SQL Server |
+| SQL Analysis | SQL Server · T-SQL |
+| BI & Visualization | Microsoft Power BI |
+| Version Control | Git · GitHub |
+
+---
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+- Python 3.8+
+- Microsoft SQL Server
+- SQL Server Management Studio (SSMS)
+- Power BI Desktop
+- Kaggle API credentials
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/bhu1421/Fleet-Delivery-Performance-Analytics.git
+cd Fleet-Delivery-Performance-Analytics
+```
+
+## 2. Install Python dependencies
+
+```bash
+pip install pandas sqlalchemy openpyxl kaggle jupyter
+```
+
+> If the notebook uses additional packages, install them according to the notebook's import section.
+
+## 3. Run the ETL notebook
+
+```bash
+jupyter notebook "ETL Delivery Truck - Structured.ipynb"
+```
+
+The notebook extracts the source data, cleans and validates it, and produces the files in:
+
+```text
+data/clean/
+```
+
+## 4. Load the clean CSV files into SQL Server
+
+Create a database:
+
+```sql
+CREATE DATABASE FleetDeliveryAnalytics;
+```
+
+Import the five cleaned CSV files into:
+
+```text
+drivers
+vehicles
+customers
+costs
+freight
+```
+
+Then create the required primary-key and foreign-key relationships.
+
+## 5. Connect Power BI
+
+Open the Power BI report in Power BI Desktop and connect it to:
+
+```text
+Database: FleetDeliveryAnalytics
+Server: localhost
+```
+
+Update the connection if SQL Server is running on a different server or instance.
+
+---
+
+# 📌 Data Quality & Validation
+
+The ETL workflow includes checks for:
+
+- Row counts
+- Column names
+- Data types
+- Missing values
+- Identifier consistency
+- Numeric conversion
+- Date conversion
+- Duplicate records
+- Foreign-key compatibility
+
+Final clean-table row counts are validated before the data is used for SQL and Power BI analysis.
+
+---
+
+# 📁 Repository Notes
+
+The repository keeps the original raw source files and the cleaned analytical datasets so the transformation process can be inspected and reproduced.
+
+Large or temporary files such as:
+
+```text
+*.pbix
+logistics-fleet-data.zip
+__pycache__/
+.ipynb_checkpoints/
+```
+
+are excluded through `.gitignore`.
+
+The `images/` directory contains the three dashboard screenshots embedded in this README.
+
+---
+
+# 🎯 Skills Demonstrated
+
+This project demonstrates practical experience with:
+
+- Data extraction
+- Data cleaning
+- ETL pipeline development
+- Pandas
+- SQL Server
+- Relational data modeling
+- SQL JOINs and aggregations
+- CTEs and window functions
+- Data validation
+- Power BI data modeling
+- DAX measures
+- Interactive dashboard design
+- Business-oriented data analysis
+
+---
+
+## 📄 License
+
+This project is created for educational and portfolio purposes.
